@@ -22,8 +22,18 @@ class ProfilePageViewController: UICollectionViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setUpDataSource()
+      
+        let refreshControl = UIRefreshControl()
+        refreshControl.addTarget(self, action: #selector(refresh(_:)), for: .valueChanged)
+        collectionView?.refreshControl = refreshControl
     }
   
+  func refresh(_ sender: AnyObject?) {
+    let delayTime = DispatchTime.now() + Double(Int64(3 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
+    DispatchQueue.main.asyncAfter(deadline: delayTime) {
+      self.collectionView?.refreshControl?.endRefreshing()
+    }
+  }
   
   func setUpDataSource() {
     for i in 0...20 {
@@ -38,10 +48,9 @@ class ProfilePageViewController: UICollectionViewController {
   }
 }
 
+//:MARK Change Section
 
 extension ProfilePageViewController {
-  
-  
   @IBAction func outfitsBtnPressed(_ sender: UIButton) {
     header?.likesBtn.setTitleColor(greyColor, for: .normal)
     header?.outfitsBtn.setTitleColor(defaultBlue, for: .normal)
@@ -49,19 +58,19 @@ extension ProfilePageViewController {
     collectionView?.reloadData()
   }
   
-  
   @IBAction func likesBtnPressed(_ sender: UIButton) {
     header?.likesBtn.setTitleColor(defaultBlue, for: .normal)
     header?.outfitsBtn.setTitleColor(greyColor, for: .normal)
     likesSelected = true
     collectionView?.reloadData()
   }
-  
-  
 }
 
+
+//:MARK CollectionView Datasource
+
+
 extension ProfilePageViewController {
-  
   
   override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
     if likesSelected {
@@ -83,14 +92,12 @@ extension ProfilePageViewController {
   override func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
     
     switch kind {
-    //2
     case UICollectionElementKindSectionHeader:
       let headerView = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "collectionHeader", for: indexPath) as! HeaderCollectionReusableView
       header = headerView
       headerView.profilePicture.image = UIImage(named: "Profile")
       return headerView
     default:
-      //4
       assert(false, "Unexpected element kind")
     }
     
