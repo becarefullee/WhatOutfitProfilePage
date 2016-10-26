@@ -12,12 +12,17 @@ private let reuseIdentifier = "Cell"
 
 class ProfilePageViewController: UICollectionViewController {
   
+  
+  fileprivate var screenWidth: CGFloat = UIScreen.main.bounds.width
   fileprivate var outfits: [UIImage] = []
   fileprivate var likes: [UIImage] = []
   fileprivate var likesSelected: Bool = false
-  var header: HeaderCollectionReusableView?
-  let greyColor: UIColor = UIColor(red: 170/255, green: 170/255, blue: 170/255, alpha: 1)
-  let defaultBlue: UIColor = UIColor(red: 14/255, green: 122/255, blue: 254/255, alpha: 1)
+  fileprivate var header: HeaderCollectionReusableView?
+  fileprivate let greyColor: UIColor = UIColor(red: 170/255, green: 170/255, blue: 170/255, alpha: 1)
+  fileprivate let defaultBlue: UIColor = UIColor(red: 14/255, green: 122/255, blue: 254/255, alpha: 1)
+  fileprivate var cellWidth: CGFloat {
+    return (screenWidth - 12) / 3
+  }
   
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -25,13 +30,21 @@ class ProfilePageViewController: UICollectionViewController {
       
         let refreshControl = UIRefreshControl()
         refreshControl.addTarget(self, action: #selector(refresh(_:)), for: .valueChanged)
+      if #available(iOS 10.0, *) {
         collectionView?.refreshControl = refreshControl
+      } else {
+        // Fallback on earlier versions
+      }
     }
   
   func refresh(_ sender: AnyObject?) {
-    let delayTime = DispatchTime.now() + Double(Int64(3 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
+    let delayTime = DispatchTime.now() + Double(Int64(2 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
     DispatchQueue.main.asyncAfter(deadline: delayTime) {
-      self.collectionView?.refreshControl?.endRefreshing()
+      if #available(iOS 10.0, *) {
+        self.collectionView?.refreshControl?.endRefreshing()
+      } else {
+        // Fallback on earlier versions
+      }
     }
   }
   
@@ -100,8 +113,18 @@ extension ProfilePageViewController {
     default:
       assert(false, "Unexpected element kind")
     }
-    
+  }
+}
+
+//:MARK Resize the CollectionvViewCell based on screen size
+
+
+extension ProfilePageViewController: UICollectionViewDelegateFlowLayout {
+  
+  func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+    return CGSize(width: cellWidth, height: cellWidth)
   }
   
-  
 }
+
+
